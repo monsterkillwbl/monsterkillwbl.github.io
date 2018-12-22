@@ -3,13 +3,19 @@
   
     
     <entry>
-      <title></title>
-      <link href="/2018/12/22/Untitled/"/>
-      <url>/2018/12/22/Untitled/</url>
+      <title>【转】理解C/C++中char a[], char *的区别----待续</title>
+      <link href="/2018/12/22/%E7%90%86%E8%A7%A3C++%E4%B8%AD%E5%AD%97%E7%AC%A6%E4%B8%B2/"/>
+      <url>/2018/12/22/%E7%90%86%E8%A7%A3C++%E4%B8%AD%E5%AD%97%E7%AC%A6%E4%B8%B2/</url>
       
-        <content type="html"><![CDATA[<h1 id="武汉大学"><a href="#武汉大学" class="headerlink" title="武汉大学"></a>武汉大学</h1><h2 id="中国移动"><a href="#中国移动" class="headerlink" title="中国移动"></a>中国移动</h2><p>阿萨德</p>]]></content>
+        <content type="html"><![CDATA[<p>C语言中由于指针的灵活性，导致指针能代替数组使用，或者混合使用，这些导致了许多指针和数组的迷惑，因此，刻意再次深入探究了指针和数组，其他类型的数组比较简单，容易混淆的是字符数组和字符指针这两个。。。下面就开始剖析一下这两位的恩怨情仇。。。</p><a id="more"></a><h1 id="数组的本质"><a href="#数组的本质" class="headerlink" title="数组的本质"></a>数组的本质</h1><p>　　　数组是多个元素的集合，在内存中分布在地址相连的单元中，所以可以通过其下标访问不同单元的元素。。</p><h1 id="指针"><a href="#指针" class="headerlink" title="指针"></a>指针</h1><p>　　　指针也是一种变量，只不过它的内存单元中保存的是一个标识其他位置的地址。。由于地址也是整数，在３２位平台下，指针默认为３２位。。</p><h1 id="指针的指向"><a href="#指针的指向" class="headerlink" title="指针的指向"></a>指针的指向</h1><p>　　　指向的直接意思就是指针变量所保存的其他的地址单元中所存放的数据类型。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">　　　<span class="keyword">int</span> * p ;<span class="comment">//p 变量保存的地址所在内存单元中的数据类型为整型</span></span><br><span class="line"><span class="keyword">float</span> *q;<span class="comment">//q ..................................浮点型</span></span><br></pre></td></tr></table></figure></p><p>   不论指向的数据类型为那种，指针变量其本身永远为整型，因为它保存的地址。</p><h1 id="字符数组"><a href="#字符数组" class="headerlink" title="字符数组"></a>字符数组</h1><p>字面意思是数组，数组中的元素是字符。。确实，这就是它的本质意义。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span>  str[<span class="number">10</span>];</span><br></pre></td></tr></table></figure></p><p> 定义了一个有十个元素的数组，元素类型为字符。</p><p> C语言中定义一个变量时可以初始化。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span>  str[<span class="number">10</span>] = &#123;<span class="string">"hello world"</span>&#125;;</span><br></pre></td></tr></table></figure></p><p> 当编译器遇到这句时，会把str数组中从第一个元素把hello world\0 逐个填入。。</p><p> 由于C语言中没有真正的字符串类型，可以通过字符数组表示字符串，因为它的元素地址是连续的，这就足够了。</p><p> C语言中规定数组代表数组所在内存位置的首地址，也是 str[0]的地址，即str = &amp;str[0];</p><p> 而printf(“%s”,str); 为什么用首地址就可以输出字符串。。</p><p> 因为还有一个关键，在C语言中字符串常量的本质表示其实是一个地址，这是许多初学者比较难理解的问题。。。</p><p>  举例：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span>  *s ;</span><br><span class="line"></span><br><span class="line">s = <span class="string">"China"</span>;</span><br></pre></td></tr></table></figure></p><p>  为什么可以把一个字符串赋给一个指针变量。。</p><p>  这不是类型不一致吗？？？</p><p>  这就是上面提到的关键 。。</p><p>  C语言中编译器会给字符串常量分配地址，如果 “China”, 存储在内存中的 0x3000 0x3001 0x3002 0x3003 0x3004 0x3005 .</p><p>  s = “China” ，意识是什么，对了，地址。</p><p>  其实真正的意义是 s =”China” = 0x3000;</p><p>  看清楚了吧 ，你把China 看作是字符串，但是编译器把它看作是地址 0x3000，即字符串常量的本质表现是代表它的第一个字符的地址。。。。。。。。。。</p><p>  s = 0x3000</p><p>  这样写似乎更符合直观的意思。。。</p><p>  搞清楚这个问题。。</p><p>  那么 %s ，它的原理其实也是通过字符串首地址输出字符串，printf(“%s “, s);   传给它的其实是s所保存的字符串的地址。。。</p><p>  比如</p><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">  <span class="meta">#<span class="meta-keyword">include</span> </span></span><br><span class="line"></span><br><span class="line"> <span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">char</span> *s;</span><br><span class="line">   s = <span class="string">"hello"</span>;</span><br><span class="line">   <span class="built_in">printf</span>(<span class="string">"%p\n"</span>,s);</span><br><span class="line">   <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
       
       
+      
+        <tags>
+            
+            <tag> C/C++ </tag>
+            
+        </tags>
       
     </entry>
     
@@ -45,15 +51,6 @@
     
   
   
-    
-    <entry>
-      <title></title>
-      <link href="/README.html"/>
-      <url>/README.html</url>
-      
-        <content type="html"><![CDATA[]]></content>
-      
-    </entry>
     
   
 </search>
